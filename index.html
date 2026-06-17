@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOWPATH — Canal Corridor 100 Training Dashboard</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 4px;
+    }
+    .header p {
+      color: #718096;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .tab {
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #718096;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      color: #2d3748;
+      border-bottom-color: #3182ce;
+    }
+    .tab:hover {
+      color: #2d3748;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2d3748;
+      margin-bottom: 4px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #3182ce;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2c5aa0;
+    }
+    .btn-success {
+      background: #38a169;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #2f855a;
+    }
+    .btn-danger {
+      background: #e53e3e;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    .btn-danger:hover {
+      background: #c53030;
+    }
+    .run-entry {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .run-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .run-header:hover {
+      background: #edf2f7;
+      border-radius: 4px;
+      margin: -4px;
+      padding: 4px;
+    }
+    .run-date {
+      font-weight: 600;
+      color: #1a202c;
+      font-size: 15px;
+    }
+    .run-stats {
+      font-size: 13px;
+      color: #718096;
+      margin-top: 4px;
+    }
+    .knee-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .knee-green {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+    .knee-yellow {
+      background: #feebc8;
+      color: #7c2d12;
+    }
+    .knee-red {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+    .run-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #cbd5e0;
+      font-size: 13px;
+      color: #4a5568;
+    }
+    .run-details p {
+      margin-bottom: 8px;
+    }
+    .food-entry {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .food-name {
+      font-weight: 500;
+      color: #1a202c;
+      font-size: 13px;
+      flex: 1;
+    }
+    .food-macros {
+      font-size: 12px;
+      color: #718096;
+      text-align: right;
+    }
+    .daily-totals {
+      background: #edf2f7;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .totals-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .total-item {
+      text-align: center;
+    }
+    .total-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .total-label {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 4px;
+    }
+    .fuel-ring {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+    }
+    .fuel-ring svg {
+      width: 100%;
+      height: 100%;;
+      transform: rotate(-90deg);
+    }
+    .fuel-ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .fuel-ring-pct {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .fuel-ring-label {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 2px;
+    }
+    .day-type-box {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .day-type-box.selected {
+      border-color: #3182ce;
+      background: #ebf8ff;
+    }
+    .day-type-label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+    .day-type-targets {
+      font-size: 12px;
+      color: #718096;
+      line-height: 1.6;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .checkbox-label input {
+      width: auto;
+      margin: 0;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #718096;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ===== CONFIG =====
+    const RACE = {
+      name: "Canal Corridor 100",
+      date: "October 10-11, 2026",
+      location: "Towpath Trail, Akron, OH",
+    };
+
+    const DAY_TYPES = {
+      easy: {
+        label: "Easy Run",
+        targets: { cal: 1900, protein: 155, carbs: 210, fat: 55 },
+        accent: "#3b8c6e",
+      },
+      strength: {
+        label: "Strength/PT",
+        targets: { cal: 1800, protein: 155, carbs: 190, fat: 52 },
+        accent: "#b8860b",
+      },
+      long: {
+        label: "Long Run",
+        targets: { cal: 2150, protein: 160, carbs: 250, fat: 58 },
+        accent: "#c2683a",
+      },
+      rest: {
+        label: "Rest Day",
+        targets: { cal: 1800, protein: 155, carbs: 185, fat: 50 },
+        accent: "#5b6b7a",
+      },
+    };
+
+    // ===== MAIN APP =====
+    function TOWPATHDashboard() {
+      const [activeTab, setActiveTab] = useState("today");
+      const [runs, setRuns] = useState([]);
+      const [nutrition, setNutrition] = useState([]);
+      const [expandedRun, setExpandedRun] = useState(null);
+
+      // Seed data (from coaching notes)
+      const seedRuns = [
+        {
+          id: "run_20260615",
+          date: "2026-06-15",
+          distance: 3.64,
+          movingTime: 39 * 60,
+          avgPower: 321,
+          avgHR: 125,
+          rpe: 3,
+          dayType: "easy",
+          notes: "Best run since stopping in January. PT knee taping helped. Cooler temps. Minimal anterior pressure.",
+          kneeStatus: "Green",
+          kneeDetails: "Mild",
+        },
+      ];
+
+      const seedNutrition = [
+        { id: "food_20260615_001", date: "2026-06-15", food: "Aldi Red Pepper Hummus Protein Wrap", cal: 120, protein: 12, carbs: 17, fat: 3 },
+        { id: "food_20260615_002", date: "2026-06-15", food: "Ground sirloin 90/10 (6.5oz cooked)", cal: 1140, protein: 142, carbs: 0, fat: 57 },
+        { id: "food_20260615_003", date: "2026-06-15", food: "10 smoked bone-in wings with dry rub", cal: 1079, protein: 104, carbs: 0.5, fat: 64.5 },
+      ];
+
+      // Load from storage on mount (storage takes priority over seed)
+      useEffect(() => {
+        const storedRuns = JSON.parse(localStorage.getItem("towpath_runs") || "[]");
+        const storedNutrition = JSON.parse(localStorage.getItem("towpath_nutrition") || "[]");
+        if (storedRuns.length > 0) setRuns(storedRuns);
+        else setRuns(seedRuns);
+        if (storedNutrition.length > 0) setNutrition(storedNutrition);
+        else setNutrition(seedNutrition);
+      }, []);
+
+      // Persist to storage
+      useEffect(() => {
+        localStorage.setItem("towpath_runs", JSON.stringify(runs));
+      }, [runs]);
+
+      useEffect(() => {
+        localStorage.setItem("towpath_nutrition", JSON.stringify(nutrition));
+      }, [nutrition]);
+
+      // ===== HANDLERS =====
+      const handleAddRun = (formData) => {
+        const newRun = {
+          id: `run_${Date.now()}`,
+          date: formData.date,
+          distance: parseFloat(formData.distance),
+          movingTime: formData.movingTime ? parseInt(formData.movingTime) * 60 : null,
+          avgPower: formData.avgPower ? parseInt(formData.avgPower) : null,
+          avgHR: formData.avgHR ? parseInt(formData.avgHR) : null,
+          rpe: formData.rpe ? parseInt(formData.rpe) : null,
+          dayType: formData.dayType || "easy",
+          notes: formData.notes,
+          kneeStatus: formData.kneeStatus,
+          kneeDetails: formData.kneeDetails,
+        };
+        setRuns([...runs, newRun]);
+      };
+
+      const handleAddFood = (formData) => {
+        const newFood = {
+          id: `food_${Date.now()}`,
+          date: formData.date,
+          food: formData.food,
+          cal: parseInt(formData.cal),
+          protein: formData.protein ? parseInt(formData.protein) : 0,
+          carbs: formData.carbs ? parseInt(formData.carbs) : 0,
+          fat: formData.fat ? parseInt(formData.fat) : 0,
+        };
+        setNutrition([...nutrition, newFood]);
+      };
+
+      const deleteRun = (id) => {
+        setRuns(runs.filter((r) => r.id !== id));
+      };
+
+      const deleteFood = (id) => {
+        setNutrition(nutrition.filter((f) => f.id !== id));
+      };
+
+      // ===== COMPUTED =====
+      const todayDate = new Date().toISOString().split("T")[0];
+      const todayRuns = runs.filter((r) => r.date === todayDate);
+      const todayNutrition = nutrition.filter((f) => f.date === todayDate);
+
+      const todayNutritionTotals = useMemo(() => {
+        return {
+          cal: todayNutrition.reduce((sum, f) => sum + f.cal, 0),
+          protein: todayNutrition.reduce((sum, f) => sum + f.protein, 0),
+          carbs: todayNutrition.reduce((sum, f) => sum + f.carbs, 0),
+          fat: todayNutrition.reduce((sum, f) => sum + f.fat, 0),
+        };
+      }, [todayNutrition]);
+
+      const todayDayType = todayRuns.length > 0 ? todayRuns[0].dayType : "rest";
+      const todayTargets = DAY_TYPES[todayDayType].targets;
+
+      const carbPercent = Math.round((todayNutritionTotals.carbs / todayTargets.carbs) * 100);
+      const proteinPercent = Math.round((todayNutritionTotals.protein / todayTargets.protein) * 100);
+
+      // ===== RENDER =====
+      return (
+        <div className="container">
+          <div className="header">
+            <h1>TOWPATH</h1>
+            <p>{RACE.name}</p>
+            <p>{RACE.date} • {RACE.location}</p>
+          </div>
+
+          <div className="card">
+            <div className="tabs">
+              <button className={`tab ${activeTab === "today" ? "active" : ""}`} onClick={() => setActiveTab("today")}>
+                Today
+              </button>
+              <button className={`tab ${activeTab === "runs" ? "active" : ""}`} onClick={() => setActiveTab("runs")}>
+                All Runs
+              </button>
+              <button className={`tab ${activeTab === "nutrition" ? "active" : ""}`} onClick={() => setActiveTab("nutrition")}>
+                Nutrition Log
+              </button>
+            </div>
+
+            {/* TODAY TAB */}
+            {activeTab === "today" && <TodayTab todayRuns={todayRuns} todayNutrition={todayNutrition} todayDayType={todayDayType} todayTargets={todayTargets} todayNutritionTotals={todayNutritionTotals} carbPercent={carbPercent} proteinPercent={proteinPercent} handleAddRun={handleAddRun} handleAddFood={handleAddFood} DAY_TYPES={DAY_TYPES} />}
+
+            {/* RUNS TAB */}
+            {activeTab === "runs" && (
+              <RunsTab
+                runs={runs}
+                expandedRun={expandedRun}
+                setExpandedRun={setExpandedRun}
+                deleteRun={deleteRun}
+                handleAddRun={handleAddRun}
+                DAY_TYPES={DAY_TYPES}
+              />
+            )}
+
+            {/* NUTRITION TAB */}
+            {activeTab === "nutrition" && (
+              <NutritionTab
+                nutrition={nutrition}
+                deleteFood={deleteFood}
+                handleAddFood={handleAddFood}
+              />
+            )}
+          </div>
+
+          <div className="footer">
+            Data saved to your device • Last updated {new Date().toLocaleString()}
+          </div>
+        </div>
+      );
+    }
+
+    // ===== TODAY TAB =====
+    function TodayTab({ todayRuns, todayNutrition, todayDayType, todayTargets, todayNutritionTotals, carbPercent, proteinPercent, handleAddRun, handleAddFood, DAY_TYPES }) {
+      const [runForm, setRunForm] = useState({ date: new Date().toISOString().split("T")[0], distance: "", movingTime: "", avgPower: "", avgHR: "", rpe: "", dayType: "easy", notes: "", kneeStatus: "Green", kneeDetails: "" });
+      const [foodForm, setFoodForm] = useState({ date: new Date().toISOString().split("T")[0], food: "", cal: "", protein: "", carbs: "", fat: "" });
+
+      const onAddRun = () => {
+        if (!runForm.distance) return;
+        handleAddRun(runForm);
+        setRunForm({ date: new Date().toISOString().split("T")[0], distance: "", movingTime: "", avgPower: "", avgHR: "", rpe: "", dayType: "easy", notes: "", kneeStatus: "Green", kneeDetails: "" });
+      };
+
+      const onAddFood = () => {
+        if (!foodForm.food || !foodForm.cal) return;
+        handleAddFood(foodForm);
+        setFoodForm({ date: new Date().toISOString().split("T")[0], food: "", cal: "", protein: "", carbs: "", fat: "" });
+      };
+
+      return (
+        <div>
+          <div className="section-title">Today's Plan ({DAY_TYPES[todayDayType].label})</div>
+          <div className="day-type-box selected">
+            <div className="day-type-label">{DAY_TYPES[todayDayType].label}</div>
+            <div className="day-type-targets">
+              {todayTargets.cal} cal • {todayTargets.protein}g protein • {todayTargets.carbs}g carbs • {todayTargets.fat}g fat
+            </div>
+          </div>
+
+          {todayRuns.length > 0 && (
+            <div className="section-title">Today's Runs</div>
+          )}
+          {todayRuns.map((run) => (
+            <div key={run.id} className="run-entry">
+              <div className="run-date">{run.distance} mi • {run.rpe && `RPE ${run.rpe}`}</div>
+              <div className="run-stats">{run.avgHR && `${run.avgHR} bpm`} {run.avgPower && `• ${run.avgPower}W`}</div>
+              <div style={{ marginTop: "8px" }}>
+                <span className={`knee-badge knee-${run.kneeStatus.toLowerCase()}`}>{run.kneeStatus}</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="section-title">Log Run</div>
+          <div className="day-type-box">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" value={runForm.date} onChange={(e) => setRunForm({ ...runForm, date: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Distance (miles)</label>
+                <input type="number" step="0.1" placeholder="3.5" value={runForm.distance} onChange={(e) => setRunForm({ ...runForm, distance: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Day Type</label>
+                <select value={runForm.dayType} onChange={(e) => setRunForm({ ...runForm, dayType: e.target.value })}>
+                  {Object.entries(DAY_TYPES).map(([key, val]) => (
+                    <option key={key} value={key}>{val.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>RPE (1-10)</label>
+                <input type="number" min="1" max="10" placeholder="5" value={runForm.rpe} onChange={(e) => setRunForm({ ...runForm, rpe: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Moving Time (min)</label>
+                <input type="number" placeholder="40" value={runForm.movingTime} onChange={(e) => setRunForm({ ...runForm, movingTime: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Avg Power (W)</label>
+                <input type="number" placeholder="300" value={runForm.avgPower} onChange={(e) => setRunForm({ ...runForm, avgPower: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Avg HR (bpm)</label>
+              <input type="number" placeholder="130" value={runForm.avgHR} onChange={(e) => setRunForm({ ...runForm, avgHR: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Knee Status</label>
+              <select value={runForm.kneeStatus} onChange={(e) => setRunForm({ ...runForm, kneeStatus: e.target.value })}>
+                <option>Green</option>
+                <option>Yellow</option>
+                <option>Red</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Knee Details</label>
+              <input type="text" placeholder="e.g., Mild, Sore, Gone by next AM" value={runForm.kneeDetails} onChange={(e) => setRunForm({ ...runForm, kneeDetails: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea placeholder="How did it feel?" value={runForm.notes} onChange={(e) => setRunForm({ ...runForm, notes: e.target.value })} />
+            </div>
+            <button className="btn btn-primary" onClick={onAddRun}>Log Run</button>
+          </div>
+
+          <div className="section-title">Today's Nutrition</div>
+          <div className="daily-totals">
+            <div style={{ fontWeight: 600, color: "#2d3748", marginBottom: "12px" }}>Daily Totals</div>
+            <div className="totals-grid">
+              <div className="total-item">
+                <div className="total-value">{todayNutritionTotals.cal}</div>
+                <div className="total-label">Calories</div>
+              </div>
+              <div className="total-item">
+                <div className="total-value">{Math.round(proteinPercent)}%</div>
+                <div className="total-label">{todayNutritionTotals.protein}g / {todayTargets.protein}g P</div>
+              </div>
+              <div className="total-item">
+                <FuelRing percent={carbPercent} label={`${todayNutritionTotals.carbs}g / ${todayTargets.carbs}g C`} />
+              </div>
+              <div className="total-item">
+                <div className="total-value">{todayNutritionTotals.fat}g</div>
+                <div className="total-label">Fat</div>
+              </div>
+            </div>
+          </div>
+
+          {todayNutrition.length > 0 && (
+            <div style={{ marginTop: "16px" }}>
+              {todayNutrition.map((food) => (
+                <div key={food.id} className="food-entry">
+                  <div className="food-name">{food.food}</div>
+                  <div className="food-macros">{food.cal} cal | {food.protein}g P | {food.carbs}g C | {food.fat}g F</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ marginTop: "16px" }}>
+            <div className="section-title">Log Food</div>
+            <div className="day-type-box">
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" value={foodForm.date} onChange={(e) => setFoodForm({ ...foodForm, date: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Food Name</label>
+                <input type="text" placeholder="e.g., Rice, Banana, Chicken" value={foodForm.food} onChange={(e) => setFoodForm({ ...foodForm, food: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Calories</label>
+                  <input type="number" placeholder="200" value={foodForm.cal} onChange={(e) => setFoodForm({ ...foodForm, cal: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Protein (g)</label>
+                  <input type="number" placeholder="15" value={foodForm.protein} onChange={(e) => setFoodForm({ ...foodForm, protein: e.target.value })} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Carbs (g)</label>
+                  <input type="number" placeholder="30" value={foodForm.carbs} onChange={(e) => setFoodForm({ ...foodForm, carbs: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Fat (g)</label>
+                  <input type="number" placeholder="5" value={foodForm.fat} onChange={(e) => setFoodForm({ ...foodForm, fat: e.target.value })} />
+                </div>
+              </div>
+              <button className="btn btn-success" onClick={onAddFood}>Log Food</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ===== RUNS TAB =====
+    function RunsTab({ runs, expandedRun, setExpandedRun, deleteRun, handleAddRun, DAY_TYPES }) {
+      const [runForm, setRunForm] = useState({ date: new Date().toISOString().split("T")[0], distance: "", movingTime: "", avgPower: "", avgHR: "", rpe: "", dayType: "easy", notes: "", kneeStatus: "Green", kneeDetails: "" });
+
+      const runsByDate = {};
+      runs.forEach((r) => {
+        if (!runsByDate[r.date]) runsByDate[r.date] = [];
+        runsByDate[r.date].push(r);
+      });
+
+      const onAddRun = () => {
+        if (!runForm.distance) return;
+        handleAddRun(runForm);
+        setRunForm({ date: new Date().toISOString().split("T")[0], distance: "", movingTime: "", avgPower: "", avgHR: "", rpe: "", dayType: "easy", notes: "", kneeStatus: "Green", kneeDetails: "" });
+      };
+
+      return (
+        <div>
+          <div className="section-title">All Runs</div>
+          {Object.entries(runsByDate)
+            .sort(([a], [b]) => new Date(b) - new Date(a))
+            .map(([date, dateRuns]) =>
+              dateRuns.map((run) => (
+                <div key={run.id} className="run-entry">
+                  <div className="run-header" onClick={() => setExpandedRun(expandedRun === run.id ? null : run.id)}>
+                    <div>
+                      <div className="run-date">{date} — {run.distance} mi</div>
+                      <div className="run-stats">
+                        {run.movingTime && `${Math.floor(run.movingTime / 60)}:${String(run.movingTime % 60).padStart(2, "0")}`} {run.avgHR && `• ${run.avgHR} bpm`} {run.avgPower && `• ${run.avgPower}W`} {run.rpe && `• RPE ${run.rpe}`}
+                      </div>
+                    </div>
+                    <span className={`knee-badge knee-${run.kneeStatus.toLowerCase()}`}>{run.kneeStatus}</span>
+                  </div>
+                  {expandedRun === run.id && (
+                    <div className="run-details">
+                      {run.kneeDetails && <p><strong>Knee:</strong> {run.kneeDetails}</p>}
+                      {run.notes && <p><strong>Notes:</strong> {run.notes}</p>}
+                      <button className="btn btn-danger" onClick={() => deleteRun(run.id)}>Delete</button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+
+          <div className="section-title" style={{ marginTop: "24px" }}>Log New Run</div>
+          <div className="day-type-box">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" value={runForm.date} onChange={(e) => setRunForm({ ...runForm, date: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Distance (miles)</label>
+                <input type="number" step="0.1" placeholder="3.5" value={runForm.distance} onChange={(e) => setRunForm({ ...runForm, distance: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Day Type</label>
+                <select value={runForm.dayType} onChange={(e) => setRunForm({ ...runForm, dayType: e.target.value })}>
+                  {Object.entries(DAY_TYPES).map(([key, val]) => (
+                    <option key={key} value={key}>{val.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>RPE (1-10)</label>
+                <input type="number" min="1" max="10" placeholder="5" value={runForm.rpe} onChange={(e) => setRunForm({ ...runForm, rpe: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Moving Time (min)</label>
+                <input type="number" placeholder="40" value={runForm.movingTime} onChange={(e) => setRunForm({ ...runForm, movingTime: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Avg Power (W)</label>
+                <input type="number" placeholder="300" value={runForm.avgPower} onChange={(e) => setRunForm({ ...runForm, avgPower: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Avg HR (bpm)</label>
+              <input type="number" placeholder="130" value={runForm.avgHR} onChange={(e) => setRunForm({ ...runForm, avgHR: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Knee Status</label>
+              <select value={runForm.kneeStatus} onChange={(e) => setRunForm({ ...runForm, kneeStatus: e.target.value })}>
+                <option>Green</option>
+                <option>Yellow</option>
+                <option>Red</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Knee Details</label>
+              <input type="text" placeholder="e.g., Mild, Sore, Gone by next AM" value={runForm.kneeDetails} onChange={(e) => setRunForm({ ...runForm, kneeDetails: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea placeholder="How did it feel?" value={runForm.notes} onChange={(e) => setRunForm({ ...runForm, notes: e.target.value })} />
+            </div>
+            <button className="btn btn-primary" onClick={onAddRun}>Log Run</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ===== NUTRITION TAB =====
+    function NutritionTab({ nutrition, deleteFood, handleAddFood }) {
+      const [foodForm, setFoodForm] = useState({ date: new Date().toISOString().split("T")[0], food: "", cal: "", protein: "", carbs: "", fat: "" });
+
+      const nutritionByDate = {};
+      nutrition.forEach((f) => {
+        if (!nutritionByDate[f.date]) nutritionByDate[f.date] = [];
+        nutritionByDate[f.date].push(f);
+      });
+
+      const onAddFood = () => {
+        if (!foodForm.food || !foodForm.cal) return;
+        handleAddFood(foodForm);
+        setFoodForm({ date: new Date().toISOString().split("T")[0], food: "", cal: "", protein: "", carbs: "", fat: "" });
+      };
+
+      return (
+        <div>
+          <div className="section-title">Nutrition Log</div>
+          {Object.entries(nutritionByDate)
+            .sort(([a], [b]) => new Date(b) - new Date(a))
+            .map(([date, foods]) => {
+              const totals = {
+                cal: foods.reduce((s, f) => s + f.cal, 0),
+                protein: foods.reduce((s, f) => s + f.protein, 0),
+                carbs: foods.reduce((s, f) => s + f.carbs, 0),
+                fat: foods.reduce((s, f) => s + f.fat, 0),
+              };
+              return (
+                <div key={date} style={{ marginBottom: "24px" }}>
+                  <div className="day-type-box">
+                    <div className="day-type-label">{date}</div>
+                    {foods.map((food) => (
+                      <div key={food.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", marginBottom: "8px", paddingBottom: "8px", borderBottom: "1px solid #e2e8f0" }}>
+                        <span>{food.food}</span>
+                        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                          <span style={{ color: "#718096" }}>{food.cal}c | {food.protein}P | {food.carbs}C | {food.fat}F</span>
+                          <button className="btn btn-danger" onClick={() => deleteFood(food.id)}>✕</button>
+                        </div>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "2px solid #e2e8f0", fontWeight: 600, color: "#1a202c" }}>
+                      Total: {totals.cal} cal | {totals.protein}g P | {totals.carbs}g C | {totals.fat}g F
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+          <div className="section-title" style={{ marginTop: "24px" }}>Log Food</div>
+          <div className="day-type-box">
+            <div className="form-group">
+              <label>Date</label>
+              <input type="date" value={foodForm.date} onChange={(e) => setFoodForm({ ...foodForm, date: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Food Name</label>
+              <input type="text" placeholder="e.g., Rice, Banana, Chicken" value={foodForm.food} onChange={(e) => setFoodForm({ ...foodForm, food: e.target.value })} />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Calories</label>
+                <input type="number" placeholder="200" value={foodForm.cal} onChange={(e) => setFoodForm({ ...foodForm, cal: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Protein (g)</label>
+                <input type="number" placeholder="15" value={foodForm.protein} onChange={(e) => setFoodForm({ ...foodForm, protein: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Carbs (g)</label>
+                <input type="number" placeholder="30" value={foodForm.carbs} onChange={(e) => setFoodForm({ ...foodForm, carbs: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Fat (g)</label>
+                <input type="number" placeholder="5" value={foodForm.fat} onChange={(e) => setFoodForm({ ...foodForm, fat: e.target.value })} />
+              </div>
+            </div>
+            <button className="btn btn-success" onClick={onAddFood}>Log Food</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ===== FUEL RING COMPONENT =====
+    function FuelRing({ percent, label }) {
+      const circumference = 2 * Math.PI * 54;
+      const offset = circumference - (percent / 100) * circumference;
+      const color = percent >= 100 ? "#ef4444" : "#3182ce";
+
+      return (
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <svg width="80" height="80" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e2e8f0" strokeWidth="8" />
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              fill="none"
+              stroke={color}
+              strokeWidth="8"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              style={{ transition: "stroke-dashoffset 0.3s" }}
+            />
+          </svg>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" }}>
+            <div style={{ fontSize: "16px", fontWeight: 700, color: "#1a202c" }}>{percent}%</div>
+            <div style={{ fontSize: "10px", color: "#718096", marginTop: "2px", whiteSpace: "nowrap" }}>{label}</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ===== MOUNT =====
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<TOWPATHDashboard />);
+  </script>
+</body>
+</html>
